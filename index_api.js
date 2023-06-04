@@ -18,9 +18,11 @@ container.insertAdjacentHTML(
 
 /*helper*/
 
-lottie.load("https://assets3.lottiefiles.com/packages/lf20_UJNc2t.json");
+lottie.load("test.json");
 
 lottie.addEventListener("frame", (e) => {
+    console.log("stage", stage);
+    console.log("frame", e.detail.frame);
     switch (stage) {
         case 0:
             if (e.detail.frame <= 0) {
