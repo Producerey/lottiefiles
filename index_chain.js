@@ -7,19 +7,9 @@ const lottie = LottieInteractivity.create({
     actions: [
         {
             state: "none",
-            transition: "hold",
-            frames: [0, 40],
-        },
-        {
-            state: "autoplay",
-            transition: "click",
-            frames: [40, 80],
-        },
-
-        {
-            state: "autoplay",
-            transition: "click",
-            frames: [80, 200],
+            position: { x: [0, 1], y: [-1, 2] },
+            transition: "seek",
+            frames: [0, 80],
         },
         {
             path: "https://assets1.lottiefiles.com/packages/lf20_ISbOsd.json",

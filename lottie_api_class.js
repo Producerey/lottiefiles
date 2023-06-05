@@ -3,17 +3,54 @@ class Lottie {
         this.mouseposition = {};
         this.player = document.querySelector("#player");
         this.container = document.querySelector(".container");
-        this.rect1 = { x_min: 0, y_min: 0, x_max: 80, y_max: 80 };
+        this.rect1 = { x_min: 50, y_min: 0, x_max: 100, y_max: 80 };
         this.rect2 = { x_min: 80, y_min: 80, x_max: 100, y_max: 100 };
         this.rect3 = { x_min: 80, y_min: 80, x_max: 100, y_max: 100 };
-        this.player.addEventListener("frame", this.#onFrame);
-        this.player.addEventListener("mousemove", this.#mousemove);
-        this.player.addEventListener("mouseleave", this.#mouseleave);
-        this.player.addEventListener("click", this.#mouseclick);
-        this.player.addEventListener("ready", this.#loadReady);
+        if (this.is_touch_enabled()) {
+            console.log("load mobile");
+            this.Interactivity();
+        } else {
+            this.player.addEventListener("frame", this.#onFrame);
+            this.player.addEventListener("mousemove", this.#mousemove);
+            this.player.addEventListener("mouseleave", this.#mouseleave);
+            this.player.addEventListener("click", this.#mouseclick);
+            this.player.addEventListener("ready", this.#loadReady);
+        }
+    }
+
+    Interactivity() {
+        LottieInteractivity.create({
+            player: "#player",
+            mode: "chain",
+            actions: [
+                {
+                    state: "none",
+                    transition: "hold",
+                    frames: [0, 40],
+                },
+                {
+                    state: "none",
+                    transition: "hold",
+                    frames: [40, 80],
+                },
+
+                {
+                    state: "autoplay",
+                    transition: "click",
+                    frames: [80, 200],
+                },
+                {
+                    path: "https://assets1.lottiefiles.com/packages/lf20_ISbOsd.json",
+                    state: "autoplay",
+                    reset: true,
+                    transition: "onComplete",
+                },
+            ],
+        });
     }
 
     #onFrame = (e) => {
+        console.log(this.stage);
         switch (this.stage) {
             case 0:
                 if (e.detail.frame <= 0) {
@@ -33,6 +70,31 @@ class Lottie {
                 break;
         }
     };
+
+    #stage() {
+        if (!this.stage) {
+            if (this.mousePosInRect(this.rect1)) {
+                this.stage = 0;
+                this.stage++;
+                this.setPlayer(1);
+            }
+        }
+        if (this.stage === 1) {
+            if (this.mousePosInRect(this.rect2)) {
+                this.stage++;
+                this.setPlayer(1);
+            } else if (!this.mousePosInRect(this.rect1)) {
+                this.stage--;
+                this.setPlayer(-1);
+            }
+        }
+        if (this.stage === 2) {
+            if (!this.mousePosInRect(this.rect3)) {
+                this.stage--;
+                this.setPlayer(-1);
+            }
+        }
+    }
 
     #mousemove = (e) => {
         if (this.#calc(e)) {
@@ -55,21 +117,17 @@ class Lottie {
     #mouseleave = (e) => {
         if (this.stage === "finish") {
             this.stage = "reset";
-            this.player.load(
-                "https://assets9.lottiefiles.com/datafiles/gUENLc1262ccKIO/data.json"
-            );
+            this.player.load("./test.json");
         } else {
             this.stage = 0;
-            this.player.setDirection(-1);
-            this.player.play();
+            this.setPlayer(-1);
         }
     };
 
     #loadReady = (e) => {
         if (this.stage === "reset") {
             this.player.seek(this.player.getLottie().totalFrames);
-            this.player.setDirection(-1);
-            this.player.play();
+            this.setPlayer(-1);
             this.stage = 0;
         }
     };
@@ -98,27 +156,6 @@ class Lottie {
         return false;
     }
 
-    #stage() {
-        if (!this.stage) {
-            if (this.mousePosInRect(this.rect1)) {
-                this.stage = 1;
-                this.setPlayer(1);
-            }
-        }
-        if (this.stage === 1) {
-            if (this.mousePosInRect(this.rect2)) {
-                this.stage = 2;
-                this.setPlayer(1);
-            }
-        }
-        if (this.stage === 2) {
-            if (!this.mousePosInRect(this.rect3)) {
-                this.stage = 1;
-                this.setPlayer(-1);
-            }
-        }
-    }
-
     setPlayer(mode) {
         switch (mode) {
             case 1:
@@ -144,6 +181,15 @@ class Lottie {
         }
         return false;
     }
+
+    is_touch_enabled() {
+        return (
+            "ontouchstart" in window ||
+            navigator.maxTouchPoints > 0 ||
+            navigator.msMaxTouchPoints > 0
+        );
+    }
 }
 
-new Lottie();
+const lottie = new Lottie();
+export default lottie;
